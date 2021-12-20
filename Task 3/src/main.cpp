@@ -4,12 +4,16 @@
 #endif
 #include "Digit.h"
 #include "State.h"
-#include "SerialUserInterface.h"
+#include <LiquidCrystal_I2C.h>
+#include "LCDSerialUserInterface.h"
 #include "NumberBuilder.h"
 #include "Calculator.h"
 #include <Keypad.h>
 #include <EEPROM.h>
 
+const int LCD_TYPE = 0x27;
+const int LCD_WIDTH = 16;
+const int LCD_HEIGHT = 2;
 const int MAX_DIGITS_COUNT = 8;
 const int KEYPAD_ROWS_COUNT = 4;
 const int KEYPAD_COLUMNS_COUNT = 4;
@@ -63,7 +67,7 @@ const ButtonState* calculator_enter = additional_states[1];
 const ButtonState* dialog_yes = additional_states[0];
 const ButtonState* dialog_no = additional_states[1];
 
-IUserInterface* ui = new SerialUserInterface;
+IUserInterface* ui = new LCDSerialUserInterface(LiquidCrystal_I2C(LCD_TYPE, LCD_WIDTH, LCD_HEIGHT));
 
 void redraw()
 {
@@ -117,7 +121,7 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
 
-    Serial.begin(9600);
+    ui->init();
 
     stored_value = restore_value_form_memory();
     redraw();

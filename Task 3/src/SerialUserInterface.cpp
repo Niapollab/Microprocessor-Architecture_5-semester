@@ -8,6 +8,11 @@ SerialUserInterface::~SerialUserInterface()
 {
 }
 
+void SerialUserInterface::init()
+{
+    Serial.begin(9600);
+}
+
 void SerialUserInterface::draw_calculator_menu_item()
 {
     draw_separator();

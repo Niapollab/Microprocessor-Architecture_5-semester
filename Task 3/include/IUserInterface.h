@@ -6,6 +6,8 @@ class IUserInterface
 public:
     virtual ~IUserInterface() {};
 
+    virtual void init() = 0;
+
     virtual void draw_calculator_menu_item() = 0;
     virtual void draw_memory_menu_item(int value) = 0;
     virtual void draw_clear_menu_item() = 0;

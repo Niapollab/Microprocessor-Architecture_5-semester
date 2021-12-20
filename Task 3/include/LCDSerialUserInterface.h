@@ -1,16 +1,16 @@
-#ifndef SERIALUSERINTERFACE_H
-#define SERIALUSERINTERFACE_H
-#include "IUserInterface.h"
-#include <Arduino.h>
+#ifndef LCDSERIALUSERINTERFACE_H
+#define LCDSERIALUSERINTERFACE_H
+#include "SerialUserInterface.h"
+#include "LCDUserInterface.h"
 
-class SerialUserInterface : public IUserInterface
+class LCDSerialUserInterface : public IUserInterface
 {
-private:
-    inline void draw_separator();
-
+    LCDUserInterface _lcd;
+    SerialUserInterface _serial;
+    
 public:
-    SerialUserInterface();
-    ~SerialUserInterface();
+    LCDSerialUserInterface(const LiquidCrystal_I2C& lcd);
+    ~LCDSerialUserInterface();
 
     virtual void init();
 
@@ -26,9 +26,4 @@ public:
     virtual void draw_result(int number);
 };
 
-inline void SerialUserInterface::draw_separator()
-{
-    Serial.println("----------");
-}
-
-#endif // SERIALUSERINTERFACE_H
+#endif // LCDSERIALUSERINTERFACE_H
