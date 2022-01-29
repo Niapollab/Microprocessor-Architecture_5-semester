@@ -39,7 +39,7 @@ const ButtonState* Keypad::update()
             int mapped_index = map(i, j);
             _states[mapped_index] = _buttons[mapped_index].update();
         }
-            
+        
         digitalWrite(_columns_pins[j], HIGH);
         pinMode(_columns_pins[j], INPUT);
     }

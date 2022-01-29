@@ -45,7 +45,7 @@ void LCDUserInterface::draw_clear_dialog()
     _lcd.clear();
     _lcd.print("Need clear?");
     to_new_line();
-    _lcd.print("D1 - YES; D2 - NO");
+    _lcd.print("D2 - YES; D3 - NO");
 }
 
 void LCDUserInterface::draw_save_dialog()
@@ -53,7 +53,7 @@ void LCDUserInterface::draw_save_dialog()
     _lcd.clear();
     _lcd.print("Need save?");
     to_new_line();
-    _lcd.print("D1 - YES; D2 - NO");
+    _lcd.print("D2 - YES; D3 - NO");
 }
 
 void LCDUserInterface::draw_first_dialog(int number)

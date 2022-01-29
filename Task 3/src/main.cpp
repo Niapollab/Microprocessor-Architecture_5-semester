@@ -4,12 +4,16 @@
 #endif
 #include "Digit.h"
 #include "State.h"
+// FIXME: 5 or 7 != 0
 #include <LiquidCrystal_I2C.h>
 #include "LCDSerialUserInterface.h"
 #include "NumberBuilder.h"
 #include "Calculator.h"
+#include "InterruptUtils.h"
 #include <Keypad.h>
 #include <EEPROM.h>
+
+volatile bool need_redraw = false;
 
 const int LCD_TYPE = 0x27;
 const int LCD_WIDTH = 16;
@@ -56,16 +60,11 @@ const ButtonState* additional_states[]
 const ButtonState* star_state = &keypad.get_last_state(3, 0);  // *
 const ButtonState* sharp_state = &keypad.get_last_state(3, 2); // #
 
-// TODO: Assign with InterruptMenuHandler
-const ButtonState* menu_up = additional_states[0];
-const ButtonState* menu_down = additional_states[1];
-const ButtonState* menu_enter = additional_states[2];
+const ButtonState* calculator_backspace = additional_states[1];
+const ButtonState* calculator_enter = additional_states[2];
 
-const ButtonState* calculator_backspace = additional_states[0];
-const ButtonState* calculator_enter = additional_states[1];
-
-const ButtonState* dialog_yes = additional_states[0];
-const ButtonState* dialog_no = additional_states[1];
+const ButtonState* dialog_yes = additional_states[1];
+const ButtonState* dialog_no = additional_states[2];
 
 IUserInterface* ui = new LCDSerialUserInterface(LiquidCrystal_I2C(LCD_TYPE, LCD_WIDTH, LCD_HEIGHT));
 
@@ -98,6 +97,44 @@ void redraw()
             ui->draw_clear_dialog();
         break;
     }
+    
+    need_redraw = false;
+}
+
+void menu_down_handler()
+{
+    const int SIZE = 3;
+
+    int next = (int)current_state + 1;
+        
+    if (next >= SIZE)
+        next = 0;
+
+    current_state = (State)next;
+
+    need_redraw = true;
+}
+
+void menu_enter_handler()
+{   
+    if (current_state != State::MAIN_MENU_MEMORY_SELECTED)
+    {
+        switch (current_state)
+        {
+            case State::MAIN_MENU_CALCULATOR_SELECTED:
+                current_state = State::CALCULATOR_INPUT_FIRST;
+                stop_interrupt();
+            break;
+            case State::MAIN_MENU_CLEAR_SELECTED:
+                current_state = State::CLEAR_MEMORY_DIALOG;
+                stop_interrupt();
+            break;
+            default:
+            break;
+        }
+
+        need_redraw = true;
+    }
 }
 
 int restore_value_form_memory()
@@ -121,10 +158,17 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW);
 
+    init_interrupt();
+
+    set_handler(0, menu_down_handler);
+    set_handler(1, menu_enter_handler);
+
+    start_interrupt();
+
     ui->init();
 
     stored_value = restore_value_form_memory();
-    redraw();
+    need_redraw = true;
 }
 
 bool pressed_any_key(const ButtonState* states, int size)
@@ -143,45 +187,7 @@ bool is_clicked_or_pressed(const ButtonState& state)
 
 void main_menu_loop()
 {
-    const int SIZE = 3;
-    keypad.update();
-    
-    if (is_clicked_or_pressed(*menu_up))
-    {
-        int next = (int)current_state - 1;
-
-        if (next < 0)
-            next = SIZE - 1;
-
-        current_state = (State)next;
-
-        redraw();
-    } else if (is_clicked_or_pressed(*menu_down))
-    {
-        int next = (int)current_state + 1;
-        
-        if (next >= SIZE)
-            next = 0;
-
-        current_state = (State)next;
-
-        redraw();
-    } else if (menu_enter->click_count() > 0 && current_state != State::MAIN_MENU_MEMORY_SELECTED)
-    {
-        switch (current_state)
-        {
-            case State::MAIN_MENU_CALCULATOR_SELECTED:
-                current_state = State::CALCULATOR_INPUT_FIRST;
-            break;
-            case State::MAIN_MENU_CLEAR_SELECTED:
-                current_state = State::CLEAR_MEMORY_DIALOG;
-            break;
-            default:
-            break;
-        }   
-
-        redraw();
-    }
+    invoke_interrupts();
 }
 
 void internal_save_dialog(int saved_value)
@@ -193,13 +199,15 @@ void internal_save_dialog(int saved_value)
         store_new_value(saved_value);
 
         current_state = State::MAIN_MENU_CALCULATOR_SELECTED;
+        start_interrupt();
 
-        redraw();
+        need_redraw = true;
     } else if (dialog_no->click_count() > 0)
     {
         current_state = State::MAIN_MENU_CALCULATOR_SELECTED;
+        start_interrupt();
 
-        redraw();
+        need_redraw = true;
     }
 }
 
@@ -223,13 +231,12 @@ void calculator_loop()
         if (pressed_any_key(keypad.get_last_states(), KEYPAD_ROWS_COUNT * KEYPAD_COLUMNS_COUNT))
         {
             current_state = State::CALCULATOR_SAVE_RESULT_DIALOG;
-            redraw();
+            need_redraw = true;
         }
         
         return;
     }
 
-    bool need_redraw = false;
     for (int i = 0; i < DIGITS_COUNT; ++i)
         if (is_clicked_or_pressed(*numpad_states[i]))
         {
@@ -264,13 +271,13 @@ void calculator_loop()
         current_state = (State)((int)current_state + 1);
         need_redraw = true;
     }
-
-    if (need_redraw)
-        redraw();
 }
 
 void loop()
 {
+    if (need_redraw)
+        redraw();
+    
     switch (current_state)
     {
         case State::MAIN_MENU_CALCULATOR_SELECTED:

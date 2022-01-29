@@ -37,14 +37,14 @@ void SerialUserInterface::draw_clear_dialog()
 {
     draw_separator();
     Serial.println("Need clear?");
-    Serial.println("D1 - YES; D2 - NO");
+    Serial.println("D2 - YES; D3 - NO");
 }
 
 void SerialUserInterface::draw_save_dialog()
 {
     draw_separator();
     Serial.println("Need save?");
-    Serial.println("D1 - YES; D2 - NO");
+    Serial.println("D2 - YES; D3 - NO");
 }
 
 void SerialUserInterface::draw_first_dialog(int number)
