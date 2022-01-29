@@ -1,0 +1,92 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "PlatformIO",
+            "task": "Build",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "label": "PlatformIO: Build"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Upload",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "group": "none",
+            "label": "PlatformIO: Upload"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Clean",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "group": "none",
+            "label": "PlatformIO: Clean"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Pre-Debug",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "label": "PlatformIO: Build in debug mode"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Check",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "label": "PlatformIO: Check"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Devices",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "label": "PlatformIO: Devices"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Monitor",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "label": "PlatformIO: Monitor"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Test",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "group": "test",
+            "label": "PlatformIO: Test"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Upload and Monitor",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "label": "PlatformIO: Upload and Monitor"
+        },
+        {
+            "type": "PlatformIO",
+            "task": "Update All",
+            "problemMatcher": [
+                "$platformio"
+            ],
+            "label": "PlatformIO: Update All (libraries, dev-platforms, and packages)"
+        }
+    ]
+}
